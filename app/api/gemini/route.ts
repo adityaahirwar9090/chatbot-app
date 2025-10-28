@@ -159,12 +159,12 @@ Be creative, professional, and provide valuable content that would impress in a 
 `;
     }
 
-    // Try OpenAI first
+    // Try OpenAI first with optimized settings
     if (useOpenAI) {
       try {
         console.log("Calling OpenAI GPT-4...");
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o",
+          model: "gpt-3.5-turbo", // Use cheaper model first
           messages: [
             {
               role: "system",
@@ -175,8 +175,8 @@ Be creative, professional, and provide valuable content that would impress in a 
               content: prompt,
             },
           ],
-          temperature: 0.8,
-          max_tokens: 3000,
+          temperature: 0.7,
+          max_tokens: 2000, // Reduced tokens to save quota
         });
 
         const text = completion.choices[0]?.message?.content || "";
@@ -206,7 +206,14 @@ Be creative, professional, and provide valuable content that would impress in a 
           "OpenAI API call failed, trying Gemini:",
           openaiError.message
         );
-        useOpenAI = false;
+        
+        // Check if it's a quota error and disable OpenAI for this session
+        if (openaiError.message.includes("quota") || openaiError.message.includes("429")) {
+          console.log("OpenAI quota exceeded, disabling for this session");
+          useOpenAI = false;
+        } else {
+          useOpenAI = false;
+        }
       }
     }
 
@@ -267,6 +274,20 @@ Be creative, professional, and provide valuable content that would impress in a 
   }
 }
 
+// Intelligent topic extraction
+function extractTopicFromPrompt(prompt: string): string {
+  const words = prompt.toLowerCase()
+    .replace(/create|make|generate|build|design|presentation|slides?|ppt|powerpoint/gi, '')
+    .replace(/about|on|for|regarding|concerning|regarding/gi, '')
+    .replace(/a|an|the|and|or|but|in|on|at|to|for|of|with|by/gi, '')
+    .trim()
+    .split(/\s+/)
+    .filter(word => word.length > 2);
+  
+  // Return the first meaningful word or default
+  return words[0] || 'Technology';
+}
+
 // Local presentation generation fallback
 function generateLocalPresentation(
   prompt: string,
@@ -275,17 +296,8 @@ function generateLocalPresentation(
 ) {
   console.log("Generating local presentation for prompt:", prompt);
 
-  // Extract topic from prompt
-  const topic =
-    prompt
-      .toLowerCase()
-      .replace(
-        /create|make|generate|build|design|presentation|slides?|ppt|powerpoint/gi,
-        ""
-      )
-      .replace(/about|on|for|regarding|concerning/gi, "")
-      .trim()
-      .split(" ")[0] || "AI Technology";
+  // Extract topic from prompt more intelligently
+  const topic = extractTopicFromPrompt(prompt);
 
   const title = topic.charAt(0).toUpperCase() + topic.slice(1);
 
