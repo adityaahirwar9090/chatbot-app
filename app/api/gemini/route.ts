@@ -23,30 +23,16 @@ export async function POST(request: NextRequest) {
     // Test if API key has proper permissions
     console.log('Testing API key permissions...')
 
-    // Try different model names that might work
-    let model
-    try {
-      model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        generationConfig: {
-          temperature: 0.8,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 3000,
-        }
-      })
-    } catch (error) {
-      console.log('Trying gemini-1.5-pro model...')
-      model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-pro",
-        generationConfig: {
-          temperature: 0.8,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 3000,
-        }
-      })
-    }
+    // Use gemini-pro model which works with v1 API
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-pro",
+      generationConfig: {
+        temperature: 0.8,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 3000,
+      }
+    })
 
     let systemPrompt = ''
     
