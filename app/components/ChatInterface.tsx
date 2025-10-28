@@ -11,7 +11,7 @@ interface ChatInterfaceProps {
   isLoading: boolean
   onSendMessage: () => void
   onEditPPT: (editPrompt: string) => void
-  messagesEndRef: React.RefObject<HTMLDivElement | null>
+  messagesEndRef: React.RefObject<HTMLDivElement>
 }
 
 export default function ChatInterface({
