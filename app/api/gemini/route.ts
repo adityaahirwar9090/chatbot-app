@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
       })
       useGemini = true
       console.log('Gemini API initialized successfully')
-    } catch (error) {
+    } catch (error: any) {
       console.log('Gemini API not available, using local generation:', error.message)
       useGemini = false
     }
